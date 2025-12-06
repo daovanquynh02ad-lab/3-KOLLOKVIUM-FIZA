@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="format-detection" content="telephone=no">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>3 КОЛЛОКВИУМ ФИЗИОЛОГИЯ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,6 +25,7 @@
             --border: #E5E5E5;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --footer-height: 90px;
         }
 
         [data-theme="dark"] {
@@ -43,20 +45,34 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        html, body {
+        /* Исправление макета (пункт 5) */
+        html {
+            height: 100%;
+            overscroll-behavior: none;
+        }
+
+        body {
             font-family: var(--font);
             background-color: var(--bg);
             color: var(--text-primary);
-            min-height: 100vh;
-            touch-action: manipulation;
-            overscroll-behavior: none; /* Предотвращает оттягивание страницы при свайпе */
+            height: 100vh;
+            /* Фикс для мобильных браузеров (dynamic viewport height) */
+            height: 100dvh; 
+            overflow: hidden; /* Запрещаем скролл самого body */
+            display: flex;
+            flex-direction: column;
+            touch-action: pan-x pan-y;
         }
 
-        .container {
-            max-width: 640px;
+        .main-scroll-area {
+            flex: 1;
+            overflow-y: auto; /* Скроллится только контент */
+            overflow-x: hidden;
+            padding: 20px 20px 140px 20px; /* Отступ снизу для футера */
+            -webkit-overflow-scrolling: touch;
             width: 100%;
+            max-width: 640px;
             margin: 0 auto;
-            padding: 20px 20px 140px 20px;
         }
 
         /* --- ЭКРАНЫ --- */
@@ -64,7 +80,6 @@
             display: none;
             flex-direction: column;
             width: 100%;
-            flex: 1;
             animation: fadeIn 0.3s ease-out;
         }
         .screen.active {
@@ -141,6 +156,7 @@
             cursor: pointer;
             padding: 10px;
             font-size: 0.9rem;
+            touch-action: manipulation;
         }
 
         .start-controls {
@@ -162,7 +178,8 @@
             align-items: center;
             gap: 12px;
             transition: all 0.2s;
-            touch-action: manipulation;
+            touch-action: manipulation; /* Запрет двойного тапа (пункт 4) */
+            user-select: none;
         }
         .menu-btn:hover {
             border-color: var(--accent);
@@ -210,7 +227,8 @@
             display: flex;
             gap: 10px;
         }
-        .theme-toggle {
+        /* Общий стиль для круглых кнопок */
+        .icon-btn {
             background: var(--card-bg);
             border: 2px solid var(--border);
             color: var(--text-secondary);
@@ -224,9 +242,10 @@
             justify-content: center;
             text-decoration: none;
             touch-action: manipulation;
+            transition: all 0.2s;
         }
-        .theme-toggle i { font-size: 1.2rem; }
-        .theme-toggle:hover {
+        .icon-btn i { font-size: 1.2rem; }
+        .icon-btn:hover {
             color: var(--text-primary);
             border-color: var(--text-primary);
         }
@@ -297,26 +316,39 @@
 
         /* --- ФУТЕР --- */
         .quiz-footer {
-            position: fixed; bottom: 0; left: 0; right: 0; padding: 20px;
-            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--card-bg) 30%);
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            padding: 20px;
+            background: var(--card-bg); /* Полная заливка, чтобы не просвечивало */
             border-top: 1px solid var(--border);
             z-index: 100;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
         }
-        [data-theme="dark"] .quiz-footer { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--card-bg) 30%); }
+        [data-theme="dark"] .quiz-footer { background: var(--card-bg); }
 
-        .quiz-footer .container { padding: 0; }
+        .footer-inner {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
         .controls { display: grid; grid-template-columns: 50px 1fr 50px 50px; gap: 10px; }
         .nav-btn {
             height: 50px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; font-size: 1.2rem;
             display: flex; align-items: center; justify-content: center; background: var(--card-bg); color: var(--text-primary);
-            box-shadow: var(--shadow); touch-action: manipulation;
+            box-shadow: var(--shadow); 
+            touch-action: manipulation; /* Запрет двойного тапа */
+            user-select: none;
         }
         .nav-btn:hover:not(:disabled) { background: var(--bg); border-color: var(--accent); }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
         
         .action-btn {
             height: 50px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 1rem; color: white;
-            background: var(--accent); box-shadow: var(--shadow); touch-action: manipulation;
+            background: var(--accent); box-shadow: var(--shadow); 
+            touch-action: manipulation; /* Запрет двойного тапа */
+            user-select: none;
         }
         .action-btn:disabled { background: var(--text-secondary); box-shadow: none; opacity: 0.5; }
         .action-btn.correct { background: var(--success); }
@@ -331,25 +363,20 @@
         .stat-val.error { color: var(--error); }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Свайп подсказка */
-        .swipe-hint {
-            text-align: center; font-size: 0.8rem; color: var(--text-secondary); opacity: 0.5; margin-top: 10px;
-        }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="main-scroll-area">
 
         <div id="start-screen" class="screen active">
             <div class="top-settings">
                 <span></span>
                 <div class="top-controls-group">
-                    <a href="https://t.me/stewonly" target="_blank" class="theme-toggle" aria-label="Telegram">
+                    <a href="https://t.me/stewonly" target="_blank" class="icon-btn" aria-label="Telegram">
                         <i class="fab fa-telegram-plane"></i>
                     </a>
-                    <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn-start">
+                    <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn-start">
                         <i class="fas fa-moon"></i>
                     </button>
                 </div>
@@ -388,10 +415,10 @@
             <div class="top-settings" style="margin-bottom: 20px;">
                 <div class="progress-pill" id="progress-pill">1 / 50</div>
                 <div class="top-controls-group">
-                    <a href="https://t.me/stewonly" target="_blank" class="theme-toggle" aria-label="Telegram">
+                    <a href="https://t.me/stewonly" target="_blank" class="icon-btn" aria-label="Telegram">
                         <i class="fab fa-telegram-plane"></i>
                     </a>
-                    <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn-quiz">
+                    <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn-quiz">
                         <i class="fas fa-moon"></i>
                     </button>
                 </div>
@@ -402,8 +429,7 @@
                 <div class="q-title" id="q-text">Загрузка...</div>
                 <div class="options-list" id="options-list"></div>
             </div>
-            <div class="swipe-hint"><i class="fas fa-arrows-alt-h"></i> Свайп влево/вправо для переключения</div>
-        </div>
+            </div>
 
         <div id="result-screen" class="screen">
              <div class="start-header" style="margin:0;">
@@ -429,10 +455,9 @@
                 </button>
             </div>
         </div>
-    </div>
 
-    <div class="quiz-footer" id="quiz-footer" style="display: none;">
-        <div class="container" style="padding-bottom: 0;">
+    </div> <div class="quiz-footer" id="quiz-footer" style="display: none;">
+        <div class="footer-inner">
              <div class="controls">
                 <button class="nav-btn" id="prev-btn" onclick="prevQ()"><i class="fas fa-chevron-left"></i></button>
                 <button class="action-btn" id="main-btn" onclick="handleMainClick()">Ответить</button>
@@ -860,7 +885,7 @@
         const mainBtn = document.getElementById('main-btn');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-        const themeToggleBtns = document.querySelectorAll('.theme-toggle');
+        const themeToggleBtns = document.querySelectorAll('button.theme-toggle'); // Исправленный селектор для темы (Пункт 6)
         const mistakesBtnEnd = document.getElementById('mistakes-btn-end');
         const mistakesBtnStart = document.getElementById('mistakes-btn-start');
         const progressPill = document.getElementById('progress-pill');
@@ -872,7 +897,7 @@
             populateTopics();
             checkStorageForResume();
             themeToggleBtns.forEach(btn => btn.onclick = toggleTheme);
-            initSwipe();
+            // Свайпы отключены полностью (Пункт 3)
         });
         
         function populateTopics() {
@@ -892,13 +917,10 @@
         function checkStorageForResume() {
             const savedData = JSON.parse(localStorage.getItem(storageKey));
             
-            // Проверка на наличие незаконченного теста
             if (savedData && savedData.rawQuestions && savedData.rawQuestions.length > 0) {
-                 // Если тест не закончен (не все отвечены или просто сохранен прогресс)
                  resumeBtn.style.display = 'block';
             }
             
-            // Проверка на наличие ошибок в прошлом сеансе
             if (savedData && savedData.answers) {
                 const hasMistakes = Object.values(savedData.answers).some(a => a && a.isSubmitted && !a.isCorrect);
                 if (hasMistakes) {
@@ -943,10 +965,9 @@
         }
         
         function goHome() {
-            // При выходе в меню сохраняем прогресс, чтобы можно было продолжить
             saveProgress(); 
             switchScreen('start');
-            checkStorageForResume(); // Обновить кнопки
+            checkStorageForResume(); 
         }
 
         // --- ЛОГИКА СТАРТА ТЕСТА ---
@@ -964,7 +985,6 @@
                 currentIndex = 0;
 
                 if (mode === 'mistakes') {
-                    // Работа над ошибками: берем данные из Storage
                     const savedData = JSON.parse(localStorage.getItem(storageKey));
                     let mistakeIDs = [];
                     
@@ -982,20 +1002,17 @@
                          return;
                     }
                     
-                    // Собираем вопросы по ID
                     mistakeIDs.forEach(id => {
                         if (allQuestionsMap[id]) {
                             activeQuestions.push(allQuestionsMap[id]);
                         }
                     });
                     
-                    // Сбрасываем ответы для нового теста
                     userAnswers = {};
                     activeQuestions.forEach(q => {
                         userAnswers[q.id] = { selected: new Set(), isSubmitted: false, isCorrect: false };
                     });
                     
-                    // Удаляем старое сохранение, так как начали новый специфичный тест
                     localStorage.removeItem(storageKey);
 
                 } else { // 'new' or 'shuffle'
@@ -1019,7 +1036,6 @@
                         });
                     }
                     userAnswers = {};
-                    // При начале нового теста старый стираем
                     localStorage.removeItem(storageKey);
                 }
             }
@@ -1068,7 +1084,6 @@
             });
             
             updateFooter(state);
-            // Сохраняем прогресс на каждом шаге (чтобы кнопка "Продолжить" работала точно)
             saveProgress();
         }
 
@@ -1170,15 +1185,11 @@
             else if (percent >= 50) title.textContent = "Неплохо!";
             else title.textContent = "Стоит повторить";
 
-            // Логика кнопки "Работа над ошибками"
             if (correctCount < total) {
                 mistakesBtnEnd.style.display = 'flex';
-                // Мы сохраняем текущее состояние, чтобы на стартовом экране кнопка тоже появилась
                 saveProgress(); 
             } else {
                 mistakesBtnEnd.style.display = 'none';
-                // Если все верно, можно очистить сохранение, так как продолжать нечего
-                // Но лучше оставить, чтобы статистика не пропала, просто уберем кнопку "Продолжить"
                 localStorage.removeItem(storageKey); 
             }
 
@@ -1186,7 +1197,6 @@
         }
 
         function saveProgress() {
-            // Для сохранения Set нужно преобразовать в Array
             const serializableAnswers = {};
             
             for (const id in userAnswers) {
@@ -1210,7 +1220,6 @@
             currentIndex = savedData.currentIndex;
             activeQuestions = savedData.rawQuestions; 
             
-            // Восстанавливаем Set из Array
             userAnswers = {};
             for (const id in savedData.answers) {
                 const ans = savedData.answers[id];
@@ -1222,6 +1231,7 @@
         function switchScreen(screenName) {
             Object.values(screens).forEach(s => s.classList.remove('active'));
             screens[screenName].classList.add('active');
+            // Футер всегда показывается если мы в тесте
             quizFooter.style.display = (screenName === 'quiz') ? 'block' : 'none';
         }
 
@@ -1232,39 +1242,6 @@
             }
         }
         
-        // --- SWIPE LOGIC (ДЛЯ ТЕЛЕФОНОВ) ---
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        function initSwipe() {
-            const card = document.getElementById('quiz-screen');
-            
-            card.addEventListener('touchstart', e => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, {passive: true});
-
-            card.addEventListener('touchend', e => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            }, {passive: true});
-        }
-        
-        function handleSwipe() {
-            const threshold = 50; // Мин. расстояние свайпа
-            if (touchEndX < touchStartX - threshold) {
-                // Свайп влево (Следующий)
-                // Если вопрос уже отвечен, переходим
-                if (userAnswers[activeQuestions[currentIndex].id].isSubmitted) {
-                    if (currentIndex < activeQuestions.length - 1) nextQ();
-                }
-            }
-            if (touchEndX > touchStartX + threshold) {
-                // Свайп вправо (Предыдущий)
-                prevQ();
-            }
-        }
-        
-        // --- KEYBOARD ---
         document.addEventListener('keydown', (e) => {
             if (screens.quiz.classList.contains('active')) {
                 if (e.key === 'ArrowRight') nextBtn.click();
