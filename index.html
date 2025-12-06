@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="format-detection" content="telephone=no">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>3 КОЛЛОКВИУМ ФИЗИОЛОГИЯ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +25,6 @@
             --border: #E5E5E5;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --footer-height: 90px;
         }
 
         [data-theme="dark"] {
@@ -43,22 +42,17 @@
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* Исправление макета (пункт 5) */
-        html {
-            height: 100%;
-            overscroll-behavior: none;
-        }
+        html { height: 100%; overscroll-behavior: none; }
 
         body {
             font-family: var(--font);
             background-color: var(--bg);
             color: var(--text-primary);
             height: 100vh;
-            /* Фикс для мобильных браузеров (dynamic viewport height) */
             height: 100dvh; 
-            overflow: hidden; /* Запрещаем скролл самого body */
+            overflow: hidden; 
             display: flex;
             flex-direction: column;
             touch-action: pan-x pan-y;
@@ -66,9 +60,9 @@
 
         .main-scroll-area {
             flex: 1;
-            overflow-y: auto; /* Скроллится только контент */
+            overflow-y: auto; 
             overflow-x: hidden;
-            padding: 20px 20px 140px 20px; /* Отступ снизу для футера */
+            padding: 20px 20px 140px 20px; 
             -webkit-overflow-scrolling: touch;
             width: 100%;
             max-width: 640px;
@@ -178,7 +172,7 @@
             align-items: center;
             gap: 12px;
             transition: all 0.2s;
-            touch-action: manipulation; /* Запрет двойного тапа (пункт 4) */
+            touch-action: manipulation;
             user-select: none;
         }
         .menu-btn:hover {
@@ -207,7 +201,6 @@
             background: var(--error);
             color: white;
         }
-        
         .menu-btn i {
             width: 20px;
             text-align: center;
@@ -227,7 +220,6 @@
             display: flex;
             gap: 10px;
         }
-        /* Общий стиль для круглых кнопок */
         .icon-btn {
             background: var(--card-bg);
             border: 2px solid var(--border);
@@ -321,10 +313,12 @@
             left: 0; 
             right: 0; 
             padding: 20px;
-            background: var(--card-bg); /* Полная заливка, чтобы не просвечивало */
+            background: var(--card-bg); 
             border-top: 1px solid var(--border);
             z-index: 100;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            /* Жесткое отключение зума на контейнере */
+            touch-action: manipulation;
         }
         [data-theme="dark"] .quiz-footer { background: var(--card-bg); }
 
@@ -334,12 +328,18 @@
         }
 
         .controls { display: grid; grid-template-columns: 50px 1fr 50px 50px; gap: 10px; }
+        
+        /* Стили кнопок с защитой от зума */
+        .nav-btn, .action-btn {
+            touch-action: manipulation; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
         .nav-btn {
             height: 50px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; font-size: 1.2rem;
             display: flex; align-items: center; justify-content: center; background: var(--card-bg); color: var(--text-primary);
             box-shadow: var(--shadow); 
-            touch-action: manipulation; /* Запрет двойного тапа */
-            user-select: none;
         }
         .nav-btn:hover:not(:disabled) { background: var(--bg); border-color: var(--accent); }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
@@ -347,8 +347,6 @@
         .action-btn {
             height: 50px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 1rem; color: white;
             background: var(--accent); box-shadow: var(--shadow); 
-            touch-action: manipulation; /* Запрет двойного тапа */
-            user-select: none;
         }
         .action-btn:disabled { background: var(--text-secondary); box-shadow: none; opacity: 0.5; }
         .action-btn.correct { background: var(--success); }
@@ -388,15 +386,14 @@
             
             <div class="topic-selector">
                 <h3>Выберите темы:</h3>
-                <div class="topic-list" id="topic-list">
-                    </div>
+                <div class="topic-list" id="topic-list"></div>
                 <button class="select-all-btn" onclick="toggleSelectAll(this)">Выбрать все</button>
             </div>
             
             <div class="start-controls">
                 <div id="resume-block" style="display:none; width: 100%;">
                     <button class="menu-btn primary" onclick="startQuiz('resume')">
-                        <i class="fas fa-play"></i> &nbsp; Продолжить с места остановки
+                        <i class="fas fa-play"></i> &nbsp; Продолжить
                     </button>
                 </div>
                 <button class="menu-btn danger" id="mistakes-btn-start" style="display:none;" onclick="startQuiz('mistakes')">
@@ -429,7 +426,7 @@
                 <div class="q-title" id="q-text">Загрузка...</div>
                 <div class="options-list" id="options-list"></div>
             </div>
-            </div>
+        </div>
 
         <div id="result-screen" class="screen">
              <div class="start-header" style="margin:0;">
@@ -456,7 +453,9 @@
             </div>
         </div>
 
-    </div> <div class="quiz-footer" id="quiz-footer" style="display: none;">
+    </div>
+
+    <div class="quiz-footer" id="quiz-footer" style="display: none;">
         <div class="footer-inner">
              <div class="controls">
                 <button class="nav-btn" id="prev-btn" onclick="prevQ()"><i class="fas fa-chevron-left"></i></button>
@@ -468,7 +467,7 @@
     </div>
     
     <script>
-        // --- БАЗА ДАННЫХ (СЖАТЫЙ ФОРМАТ) ---
+        // --- БАЗА ДАННЫХ ---
         const D={t1:{n:"1. Анатомия ЖКТ",q:[
         {i:902,q:"Укажите особенности, характерные для полого органа:",o:["имеет строму и паренхиму","имеет паренхиму и дольчатое строение","имеет внутреннюю полость и 3-х слойную стенку","имеет строму и внутреннюю полость"],c:[2]},
         {i:903,q:"Укажите особенности, характерные для паренхиматозного органа:",o:["имеет внутреннюю полость и 3-х слойную стенку","имеет паренхиму и дольчатое строение","имеет строму и паренхиму","имеет строму и внутреннюю полость"],c:[1,2]},
@@ -844,9 +843,8 @@
         {i:1456,q:"Бурый жир:",o:["гликоген","несократительный термогенез","сократительный","АТФ"],c:[1]}
         ]}};
 
-        // Адаптер данных
         const topicData = {};
-        const allQuestionsMap = {}; // Для быстрого поиска по ID
+        const allQuestionsMap = {}; 
         for (const key in D) {
             topicData[key] = {
                 name: D[key].n,
@@ -885,7 +883,7 @@
         const mainBtn = document.getElementById('main-btn');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-        const themeToggleBtns = document.querySelectorAll('button.theme-toggle'); // Исправленный селектор для темы (Пункт 6)
+        const themeToggleBtns = document.querySelectorAll('button.theme-toggle'); 
         const mistakesBtnEnd = document.getElementById('mistakes-btn-end');
         const mistakesBtnStart = document.getElementById('mistakes-btn-start');
         const progressPill = document.getElementById('progress-pill');
@@ -897,8 +895,27 @@
             populateTopics();
             checkStorageForResume();
             themeToggleBtns.forEach(btn => btn.onclick = toggleTheme);
-            // Свайпы отключены полностью (Пункт 3)
+            
+            // Скрипт блокировки двойного тапа на кнопках футера
+            const footerButtons = document.querySelectorAll('.quiz-footer button');
+            footerButtons.forEach(btn => {
+                preventDoubleTap(btn);
+            });
         });
+        
+        // Функция предотвращения двойного тапа
+        function preventDoubleTap(element) {
+            let lastTap = 0;
+            element.addEventListener('touchend', function(e) {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                if (tapLength < 300 && tapLength > 0) { // 300ms задержка
+                    e.preventDefault();
+                    return false;
+                }
+                lastTap = currentTime;
+            });
+        }
         
         function populateTopics() {
             for (const key in topicData) {
@@ -917,10 +934,21 @@
         function checkStorageForResume() {
             const savedData = JSON.parse(localStorage.getItem(storageKey));
             
+            // Логика кнопки "Продолжить" (Resume)
+            // Показываем ТОЛЬКО если есть сохраненные вопросы И (пользователь ушел дальше 1 вопроса ИЛИ ответил на что-то)
             if (savedData && savedData.rawQuestions && savedData.rawQuestions.length > 0) {
-                 resumeBtn.style.display = 'block';
+                 const hasProgress = savedData.currentIndex > 0 || (savedData.answers && Object.keys(savedData.answers).some(k => savedData.answers[k].isSubmitted));
+                 
+                 if (hasProgress) {
+                    resumeBtn.style.display = 'block';
+                 } else {
+                    resumeBtn.style.display = 'none';
+                 }
+            } else {
+                resumeBtn.style.display = 'none';
             }
             
+            // Логика кнопки "Работа над ошибками"
             if (savedData && savedData.answers) {
                 const hasMistakes = Object.values(savedData.answers).some(a => a && a.isSubmitted && !a.isCorrect);
                 if (hasMistakes) {
@@ -1231,7 +1259,6 @@
         function switchScreen(screenName) {
             Object.values(screens).forEach(s => s.classList.remove('active'));
             screens[screenName].classList.add('active');
-            // Футер всегда показывается если мы в тесте
             quizFooter.style.display = (screenName === 'quiz') ? 'block' : 'none';
         }
 
