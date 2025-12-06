@@ -134,7 +134,10 @@
             font-weight: 800;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            /* Fallback color if gradient fails */
+            color: var(--accent); 
             margin-bottom: 12px;
             letter-spacing: -1px;
             line-height: 1.1;
@@ -632,7 +635,7 @@
         <div id="result-screen" class="screen">
              <div class="start-header" style="margin-top: 60px;">
                 <h1 id="result-title">Тест завершен!</h1>
-                <div style="font-size: 4rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0;">
+                <div style="font-size: 4rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--accent); margin: 10px 0;">
                     <span id="final-score">0%</span>
                 </div>
             </div>
@@ -775,7 +778,7 @@
         {i:995,q:"Пищеварительные функции желчи:",o:["активация пепсиногенов","эмульгирование жиров","облегчение всасывания жиров","стимуляция моторики тонкой кишки","активация трипсиногена"],c:[1,2,3]},
         {i:996,q:"Расщепление клетчатки в толстой кишке идет под действием ферментов:",o:["энтероцитов","нормальной микрофлоры","поджелудочной железы","кишечного сока"],c:[1]},
         {i:997,q:"Пищеварительными процессами в толстой кишке являются:",o:["всасывание питательных веществ","конечный гидролиз остатков пищи","формирование каловых масс","всасывание солей и воды"],c:[1,2,3]},
-        {i:998,q:"Из перечисленных отделов в кроветворении участвуют:",o:["желудок","12-перстная кишка","подвздошная кишка","пищевод"],c:[0,2]},
+        {i:998,q:"Из перечисленных отделов в кроветворении участвуют:",o:["желудок","12-перстной кишка","подвздошная кишка","пищевод"],c:[0,2]},
         {i:999,q:"Основным отделом ЖКТ, где происходит всасывание, является:",o:["tonkaya kishka","ротовая полость","толстая кишка","желудок"],c:[0]},
         {i:1000,q:"Типы пищеварения в зависимости от происхождения ферментов:",o:["собственное","пристеночное","аутолитическое","симбионтное","полостное"],c:[0,2,3]},
         {i:1001,q:"К ферментам сока поджелудочной железы относятся:",o:["липаза","химотрипсин","химозин","альфа-амилаза","пепсин","трипсин"],c:[0,1,3,5]},
@@ -1108,8 +1111,8 @@
         // --- ИНИЦИАЛИЗАЦИЯ ---
         document.addEventListener('DOMContentLoaded', function() {
             // Очистка при загрузке страницы, чтобы сбрасывать прогресс
-            localStorage.removeItem(KEY_MAIN);
-            localStorage.removeItem(KEY_ERRORS);
+            // localStorage.removeItem(KEY_MAIN);
+            // localStorage.removeItem(KEY_ERRORS);
             
             loadTheme();
             populateTopics();
@@ -1132,19 +1135,25 @@
         }
         
         function checkStorageForResume() {
-            var savedMain = JSON.parse(localStorage.getItem(KEY_MAIN));
-            if (savedMain && savedMain.questions && savedMain.questions.length > 0) {
-                 resumeBtn.style.display = 'block';
-            } else {
-                resumeBtn.style.display = 'none';
-            }
-            
-            var errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
-            if (errorIds.length > 0) {
-                mistakesBtnStart.style.display = 'flex';
-                mistakesCountEl.textContent = errorIds.length;
-            } else {
-                mistakesBtnStart.style.display = 'none';
+            try {
+                var savedMain = JSON.parse(localStorage.getItem(KEY_MAIN));
+                if (savedMain && savedMain.questions && savedMain.questions.length > 0) {
+                     resumeBtn.style.display = 'block';
+                } else {
+                    resumeBtn.style.display = 'none';
+                }
+                
+                var errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+                if (errorIds.length > 0) {
+                    mistakesBtnStart.style.display = 'flex';
+                    mistakesCountEl.textContent = errorIds.length;
+                } else {
+                    mistakesBtnStart.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("Storage error, clearing", e);
+                localStorage.removeItem(KEY_MAIN);
+                localStorage.removeItem(KEY_ERRORS);
             }
         }
 
@@ -1199,14 +1208,20 @@
             currentIndex = 0;
             
             if (mode === 'resume') {
-                var savedData = JSON.parse(localStorage.getItem(KEY_MAIN));
-                if (savedData) {
-                    currentMode = 'main';
-                    activeQuestions = savedData.questions;
-                    currentIndex = savedData.index;
-                    userAnswers = savedData.answers || {};
-                } else {
-                    alert("Нет сохраненной игры");
+                try {
+                    var savedData = JSON.parse(localStorage.getItem(KEY_MAIN));
+                    if (savedData) {
+                        currentMode = 'main';
+                        activeQuestions = savedData.questions;
+                        currentIndex = savedData.index;
+                        userAnswers = savedData.answers || {};
+                    } else {
+                        alert("Нет сохраненной игры");
+                        return;
+                    }
+                } catch(e) {
+                    localStorage.removeItem(KEY_MAIN);
+                    alert("Ошибка сохранения. Начните заново.");
                     return;
                 }
             } 
@@ -1392,7 +1407,7 @@
             if (!state.isCorrect) {
                  var card = document.getElementById('question-card');
                  card.classList.remove('anim-shake');
-                 void card.offsetWidth;
+                 void card.offsetWidth; 
                  card.classList.add('anim-shake');
             }
             
@@ -1403,7 +1418,7 @@
                 }
             } else {
                 if (currentMode === 'mistakes') {
-                     globalErrors = globalErrors.filter(function(id) { return id !== q.id; });
+                      globalErrors = globalErrors.filter(function(id) { return id !== q.id; });
                 }
             }
             localStorage.setItem(KEY_ERRORS, JSON.stringify(globalErrors));
