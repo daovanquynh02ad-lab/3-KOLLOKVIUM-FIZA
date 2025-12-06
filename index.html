@@ -44,7 +44,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* ВАЖНО: Отключаем зум и задержку на уровне CSS для интерактивных элементов */
         button, .option, input, a {
             touch-action: manipulation;
         }
@@ -174,7 +173,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: all 0.1s; /* Быстрая анимация */
+            transition: all 0.1s;
             user-select: none;
         }
         .menu-btn:active {
@@ -208,6 +207,7 @@
         .top-controls-group {
             display: flex;
             gap: 10px;
+            margin-left: auto; 
         }
         .icon-btn {
             background: var(--card-bg);
@@ -266,7 +266,6 @@
             background: var(--bg); border: 2px solid var(--bg); padding: 16px; border-radius: 12px; cursor: pointer;
             font-size: 1rem; font-weight: 500; line-height: 1.4; transition: border-color 0.1s, background-color 0.1s; 
             display: flex; align-items: center; gap: 15px; 
-            /* Критично для быстрого тапа */
             user-select: none;
         }
         
@@ -394,6 +393,9 @@
             <div class="top-settings" style="margin-bottom: 20px;">
                 <div class="progress-pill" id="progress-pill">1 / 50</div>
                 <div class="top-controls-group">
+                    <a href="https://t.me/stewonly" target="_blank" class="icon-btn" aria-label="Telegram">
+                        <i class="fab fa-telegram-plane"></i>
+                    </a>
                     <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn-quiz">
                         <i class="fas fa-moon"></i>
                     </button>
@@ -446,8 +448,8 @@
     </div>
     
     <script>
-        // --- БАЗА ДАННЫХ ВОПРОСОВ ---
-        const D={t1:{n:"1. Анатомия ЖКТ",q:[
+        // --- БАЗА ДАННЫХ ВОПРОСОВ (используем VAR вместо CONST) ---
+        var D={t1:{n:"1. Анатомия ЖКТ",q:[
         {i:902,q:"Укажите особенности, характерные для полого органа:",o:["имеет строму и паренхиму","имеет паренхиму и дольчатое строение","имеет внутреннюю полость и 3-х слойную стенку","имеет строму и внутреннюю полость"],c:[2]},
         {i:903,q:"Укажите особенности, характерные для паренхиматозного органа:",o:["имеет внутреннюю полость и 3-х слойную стенку","имеет паренхиму и дольчатое строение","имеет строму и паренхиму","имеет строму и внутреннюю полость"],c:[1,2]},
         {i:904,q:"К пищеварительной системе относятся:",o:["глотка","ротовая полость","желудок","носовая полость","гортань"],c:[0,1,2]},
@@ -547,7 +549,7 @@
         {i:996,q:"Расщепление клетчатки в толстой кишке идет под действием ферментов:",o:["энтероцитов","нормальной микрофлоры","поджелудочной железы","кишечного сока"],c:[1]},
         {i:997,q:"Пищеварительными процессами в толстой кишке являются:",o:["всасывание питательных веществ","конечный гидролиз остатков пищи","формирование каловых масс","всасывание солей и воды"],c:[1,2,3]},
         {i:998,q:"Из перечисленных отделов в кроветворении участвуют:",o:["желудок","12-перстная кишка","подвздошная кишка","пищевод"],c:[0,2]},
-        {i:999,q:"Основным отделом ЖКТ, где происходит всасывание, является:",o:["тонкая кишка","ротовая полость","толстая кишка","желудок"],c:[0]},
+        {i:999,q:"Основным отделом ЖКТ, где происходит всасывание, является:",o:["tonkaya kishka","ротовая полость","толстая кишка","желудок"],c:[0]},
         {i:1000,q:"Типы пищеварения в зависимости от происхождения ферментов:",o:["собственное","пристеночное","аутолитическое","симбионтное","полостное"],c:[0,2,3]},
         {i:1001,q:"К ферментам сока поджелудочной железы относятся:",o:["липаза","химотрипсин","химозин","альфа-амилаза","пепсин","трипсин"],c:[0,1,3,5]},
         {i:1002,q:"Трипсиноген активируется:",o:["желчью","химотрипсином","соляной кислотой","энтерокиназой"],c:[3]},
@@ -822,70 +824,74 @@
         {i:1456,q:"Бурый жир:",o:["гликоген","несократительный термогенез","сократительный","АТФ"],c:[1]}
         ]}};
 
-        // --- ОБРАБОТКА ДАННЫХ ---
-        const topicData = {};
-        const allQuestionsMap = {}; 
-        for (const key in D) {
+        // --- ОБРАБОТКА ДАННЫХ (используем VAR) ---
+        var topicData = {};
+        var allQuestionsMap = {}; 
+        for (var key in D) {
             topicData[key] = {
                 name: D[key].n,
-                questions: D[key].q.map(item => {
-                    const qObj = {
+                questions: D[key].q.map(function(item) {
+                    var qObj = {
                         id: item.i.toString(),
                         q: item.q,
                         opts: item.o,
                         correct: item.c
                     };
-                    allQuestionsMap[qObj.id] = {...qObj, topic: D[key].n};
+                    allQuestionsMap[qObj.id] = Object.assign({}, qObj, { topic: D[key].n });
                     return qObj;
                 })
             };
         }
 
-        // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
-        let activeQuestions = [];
-        let currentIndex = 0;
-        let userAnswers = {}; 
-        let currentMode = 'default';
+        // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (используем VAR) ---
+        var activeQuestions = [];
+        var currentIndex = 0;
+        var userAnswers = {}; 
+        var currentMode = 'default';
         
-        // КЛЮЧИ LOCALSTORAGE (РАЗНЫЕ для основного режима и ошибок)
-        const KEY_MAIN = 'physio_v3_progress';
-        const KEY_ERRORS = 'physio_v3_errors'; // Массив ID ошибок
+        // КЛЮЧИ LOCALSTORAGE (используем VAR)
+        var KEY_MAIN = 'physio_v3_progress';
+        var KEY_ERRORS = 'physio_v3_errors';
 
-        // --- DOM ЭЛЕМЕНТЫ ---
-        const screens = {
+        // --- DOM ЭЛЕМЕНТЫ (используем VAR) ---
+        var screens = {
             start: document.getElementById('start-screen'),
             quiz: document.getElementById('quiz-screen'),
             result: document.getElementById('result-screen')
         };
-        const resumeBtn = document.getElementById('resume-block');
-        const mistakesBtnStart = document.getElementById('mistakes-btn-start');
-        const mistakesBtnEnd = document.getElementById('mistakes-btn-end');
-        const mistakesCountEl = document.getElementById('mistakes-count');
+        var resumeBtn = document.getElementById('resume-block');
+        var mistakesBtnStart = document.getElementById('mistakes-btn-start');
+        var mistakesBtnEnd = document.getElementById('mistakes-btn-end');
+        var mistakesCountEl = document.getElementById('mistakes-count');
         
-        const quizFooter = document.getElementById('quiz-footer');
-        const cardContainer = document.getElementById('question-card');
-        const qIdEl = document.getElementById('q-id-display');
-        const qTextEl = document.getElementById('q-text');
-        const optionsList = document.getElementById('options-list');
-        const mainBtn = document.getElementById('main-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const themeToggleBtns = document.querySelectorAll('button.theme-toggle'); 
-        const progressPill = document.getElementById('progress-pill');
-        const topicListEl = document.getElementById('topic-list');
+        var quizFooter = document.getElementById('quiz-footer');
+        var cardContainer = document.getElementById('question-card');
+        var qIdEl = document.getElementById('q-id-display');
+        var qTextEl = document.getElementById('q-text');
+        var optionsList = document.getElementById('options-list');
+        var mainBtn = document.getElementById('main-btn');
+        var prevBtn = document.getElementById('prev-btn');
+        var nextBtn = document.getElementById('next-btn');
+        var themeToggleBtns = document.querySelectorAll('button.theme-toggle'); 
+        var progressPill = document.getElementById('progress-pill');
+        var topicListEl = document.getElementById('topic-list');
 
         // --- ИНИЦИАЛИЗАЦИЯ ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Очистка при загрузке страницы, чтобы сбрасывать прогресс
+            localStorage.removeItem(KEY_MAIN);
+            localStorage.removeItem(KEY_ERRORS);
+            
             loadTheme();
             populateTopics();
             checkStorageForResume();
-            themeToggleBtns.forEach(btn => btn.onclick = toggleTheme);
+            themeToggleBtns.forEach(function(btn) { btn.onclick = toggleTheme; });
         });
         
         function populateTopics() {
-            for (const key in topicData) {
-                const topic = topicData[key];
-                const label = document.createElement('label');
+            for (var key in topicData) {
+                var topic = topicData[key];
+                var label = document.createElement('label');
                 label.className = 'topic-choice';
                 label.innerHTML = `
                     <input type="checkbox" class="topic-checkbox" data-topic-key="${key}" checked>
@@ -897,16 +903,14 @@
         }
         
         function checkStorageForResume() {
-            // 1. Проверка основного прогресса
-            const savedMain = JSON.parse(localStorage.getItem(KEY_MAIN));
+            var savedMain = JSON.parse(localStorage.getItem(KEY_MAIN));
             if (savedMain && savedMain.questions && savedMain.questions.length > 0) {
                  resumeBtn.style.display = 'block';
             } else {
                 resumeBtn.style.display = 'none';
             }
             
-            // 2. Проверка ошибок
-            const errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+            var errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
             if (errorIds.length > 0) {
                 mistakesBtnStart.style.display = 'flex';
                 mistakesCountEl.textContent = errorIds.length;
@@ -916,24 +920,24 @@
         }
 
         function toggleSelectAll(button) {
-            const checkboxes = document.querySelectorAll('.topic-checkbox');
-            const allSelected = Array.from(checkboxes).every(cb => cb.checked);
-            checkboxes.forEach(cb => cb.checked = !allSelected);
+            var checkboxes = document.querySelectorAll('.topic-checkbox');
+            var allSelected = Array.from(checkboxes).every(function(cb) { return cb.checked; });
+            checkboxes.forEach(function(cb) { cb.checked = !allSelected; });
             button.textContent = allSelected ? "Выбрать все" : "Снять выделение";
         }
 
         // --- ЛОГИКА ТЕМЫ ---
         function toggleTheme() {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            var currentTheme = document.body.getAttribute('data-theme');
+            var newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
             if (newTheme === 'light') {
                 document.body.removeAttribute('data-theme');
             } else {
                 document.body.setAttribute('data-theme', newTheme);
             }
             localStorage.setItem('physio_theme', newTheme);
-            document.querySelectorAll('.theme-toggle i').forEach(btn => {
-                const icon = btn.classList;
+            document.querySelectorAll('.theme-toggle i').forEach(function(btn) {
+                var icon = btn.classList;
                 if (icon.contains('fa-moon') || icon.contains('fa-sun')) {
                     icon.remove(newTheme === 'dark' ? 'fa-moon' : 'fa-sun');
                     icon.add(newTheme === 'dark' ? 'fa-sun' : 'fa-moon');
@@ -942,7 +946,7 @@
         }
 
         function loadTheme() {
-            const theme = localStorage.getItem('physio_theme') || 'light';
+            var theme = localStorage.getItem('physio_theme') || 'light';
             if (theme === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
             } else {
@@ -951,7 +955,6 @@
         }
         
         function goHome() {
-            // Если мы в основном режиме - сохраняем позицию
             if (currentMode === 'main') {
                 saveMainProgress(); 
             }
@@ -960,7 +963,6 @@
         }
 
         // --- ЛОГИКА ЗАПУСКА ТЕСТА ---
-        
         function startQuiz(mode) {
             currentMode = mode;
             userAnswers = {};
@@ -968,10 +970,9 @@
             currentIndex = 0;
             
             if (mode === 'resume') {
-                // ЗАГРУЗКА ОСНОВНОГО ПРОГРЕССА
-                const savedData = JSON.parse(localStorage.getItem(KEY_MAIN));
+                var savedData = JSON.parse(localStorage.getItem(KEY_MAIN));
                 if (savedData) {
-                    currentMode = 'main'; // Гарантируем режим
+                    currentMode = 'main';
                     activeQuestions = savedData.questions;
                     currentIndex = savedData.index;
                     userAnswers = savedData.answers || {};
@@ -981,28 +982,26 @@
                 }
             } 
             else if (mode === 'mistakes') {
-                // ЗАГРУЗКА ОШИБОК
-                const errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+                var errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
                 if (errorIds.length === 0) {
                     alert("Ошибок пока нет!");
                     return;
                 }
-                // Собираем вопросы по ID
-                errorIds.forEach(id => {
+                errorIds.forEach(function(id) {
                     if (allQuestionsMap[id]) activeQuestions.push(allQuestionsMap[id]);
                 });
-                // В этом режиме мы не сохраняем позицию "Продолжить"
             } 
             else {
-                // НОВАЯ ИГРА ('new' или 'shuffle')
-                currentMode = 'main'; // Новая игра считается основным режимом
-                const selectedKeys = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.dataset.topicKey);
+                currentMode = 'main';
+                var selectedKeys = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(function(cb) { return cb.dataset.topicKey; });
                 if (selectedKeys.length === 0) { alert("Выберите хотя бы одну тему!"); return; }
 
-                selectedKeys.forEach(key => {
-                    topicData[key].questions.forEach(q => {
-                        // Копируем объект, чтобы не портить оригинал шаффлом ответов
-                        activeQuestions.push({...JSON.parse(JSON.stringify(q)), topic: topicData[key].name });
+                selectedKeys.forEach(function(key) {
+                    topicData[key].questions.forEach(function(q) {
+                        // Клонирование объекта
+                        var qCopy = JSON.parse(JSON.stringify(q));
+                        qCopy.topic = topicData[key].name;
+                        activeQuestions.push(qCopy);
                     });
                 });
                 
@@ -1010,13 +1009,12 @@
 
                 if (mode === 'shuffle') {
                     shuffleArray(activeQuestions);
-                    activeQuestions.forEach(q => {
-                        const correctOriginalTexts = q.correct.map(idx => q.opts[idx]);
+                    activeQuestions.forEach(function(q) {
+                        var correctOriginalTexts = q.correct.map(function(idx) { return q.opts[idx]; });
                         shuffleArray(q.opts);
-                        q.correct = correctOriginalTexts.map(text => q.opts.findIndex(opt => opt === text));
+                        q.correct = correctOriginalTexts.map(function(text) { return q.opts.findIndex(function(opt) { return opt === text; }); });
                     });
                 }
-                // Сбрасываем старый прогресс основной игры
                 localStorage.removeItem(KEY_MAIN);
             }
 
@@ -1025,45 +1023,40 @@
         }
         
         // --- РЕНДЕР ВОПРОСА ---
-        function renderQuestion(isFirstLoad = false) {
-            const q = activeQuestions[currentIndex];
+        function renderQuestion(isFirstLoad) {
+            if (typeof isFirstLoad === 'undefined') isFirstLoad = false;
+            var q = activeQuestions[currentIndex];
             if (!q) return;
 
-            // Инициализация ответа пользователя, если нет
             if (!userAnswers[q.id]) {
                 userAnswers[q.id] = { selected: [], isSubmitted: false, isCorrect: false };
             }
-            const state = userAnswers[q.id];
+            var state = userAnswers[q.id];
 
-            // UI
-            const modeText = (currentMode === 'mistakes') ? 'Работа над ошибками' : 'Тест';
-            progressPill.textContent = `${modeText}: ${currentIndex + 1} / ${activeQuestions.length}`;
+            var modeText = (currentMode === 'mistakes') ? 'Работа над ошибками' : 'Тест';
+            progressPill.textContent = modeText + ": " + (currentIndex + 1) + " / " + activeQuestions.length;
             qIdEl.textContent = q.topic; 
             qTextEl.textContent = q.q;
 
-            // Анимация
             cardContainer.style.animation = 'none';
             if (!isFirstLoad) {
                 void cardContainer.offsetWidth; 
-                cardContainer.style.animation = `fadeIn 0.2s ease-out`;
+                cardContainer.style.animation = "fadeIn 0.2s ease-out";
             }
 
-            // Рендер вариантов
             optionsList.innerHTML = '';
-            // Множество выбранных индексов для быстрой проверки
-            const selectedSet = new Set(state.selected);
+            var selectedSet = new Set(state.selected);
 
-            q.opts.forEach((optText, idx) => {
-                const div = document.createElement('div');
+            q.opts.forEach(function(optText, idx) {
+                var div = document.createElement('div');
                 div.className = 'option';
-                div.innerHTML = `<div class="option-marker"></div><div class="option-text">${optText}</div>`;
-                const marker = div.querySelector('.option-marker');
+                div.innerHTML = '<div class="option-marker"></div><div class="option-text">' + optText + '</div>';
+                var marker = div.querySelector('.option-marker');
 
                 if (state.isSubmitted) {
                     div.classList.add('disabled');
-                    // Логика раскраски
-                    const isCorrectOption = q.correct.includes(idx);
-                    const isSelected = selectedSet.has(idx);
+                    var isCorrectOption = q.correct.includes(idx);
+                    var isSelected = selectedSet.has(idx);
 
                     if (isCorrectOption) { 
                         div.classList.add('correct'); 
@@ -1080,31 +1073,27 @@
                         div.classList.add('selected'); 
                         marker.innerHTML = '<i class="fas fa-check"></i>'; 
                     }
-                    // Обработчик клика
-                    div.onclick = () => toggleOption(q.id, idx);
+                    div.onclick = function() { toggleOption(q.id, idx); };
                 }
                 optionsList.appendChild(div);
             });
             
             updateFooter(state);
-            // Если основной режим - сохраняем, где мы сейчас
             if (currentMode === 'main') saveMainProgress();
         }
 
         function toggleOption(qId, idx) {
-            const state = userAnswers[qId];
+            var state = userAnswers[qId];
             if (state.isSubmitted) return;
             
-            const selectedSet = new Set(state.selected);
+            var selectedSet = new Set(state.selected);
             if (selectedSet.has(idx)) selectedSet.delete(idx);
             else selectedSet.add(idx);
             
-            // Сохраняем обратно в массив
             state.selected = Array.from(selectedSet);
             
-            // Обновляем визуально только этот элемент (для скорости)
-            const options = document.querySelectorAll('.option');
-            const opt = options[idx];
+            var options = document.querySelectorAll('.option');
+            var opt = options[idx];
             if (opt) {
                 if (selectedSet.has(idx)) {
                     opt.classList.add('selected');
@@ -1117,16 +1106,14 @@
             updateFooter(state);
         }
 
-        // --- ЛОГИКА ФУТЕРА И ПЕРЕХОДОВ ---
+        // --- ЛОГИКА ФУТЕРА ---
         function updateFooter(state) {
             prevBtn.disabled = (currentIndex === 0);
             nextBtn.disabled = (currentIndex === activeQuestions.length - 1);
             
-            // Сброс классов кнопки
             mainBtn.className = 'action-btn';
             
             if (state.isSubmitted) {
-                // Если уже ответили -> кнопка ведет "Далее"
                 if (currentIndex === activeQuestions.length - 1) {
                     mainBtn.textContent = "Завершить";
                 } else {
@@ -1134,26 +1121,22 @@
                 }
                 mainBtn.disabled = false;
                 
-                // Красим кнопку в зависимости от результата
                 if(state.isCorrect) mainBtn.classList.add('correct');
                 else mainBtn.classList.add('incorrect');
                 
             } else {
-                // Если еще не ответили -> кнопка "Ответить"
                 mainBtn.textContent = "Ответить";
                 mainBtn.disabled = (state.selected.length === 0);
             }
         }
         
         function handleMainClick() {
-            const q = activeQuestions[currentIndex];
-            const state = userAnswers[q.id];
+            var q = activeQuestions[currentIndex];
+            var state = userAnswers[q.id];
             
             if (!state.isSubmitted) {
-                // 1. ПРОВЕРКА ОТВЕТА (Мгновенно)
                 submitAnswer(q, state);
             } else {
-                // 2. ПЕРЕХОД ДАЛЬШЕ
                 if (currentIndex < activeQuestions.length - 1) {
                     nextQ();
                 } else {
@@ -1165,31 +1148,23 @@
         function submitAnswer(q, state) {
             state.isSubmitted = true;
             
-            // Сравнение массивов
-            const userArr = [...state.selected].sort();
-            const correctArr = [...q.correct].sort();
+            var userArr = state.selected.slice().sort();
+            var correctArr = q.correct.slice().sort();
             state.isCorrect = (JSON.stringify(userArr) === JSON.stringify(correctArr));
             
-            // === ЛОГИКА ОШИБОК ===
-            let globalErrors = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+            var globalErrors = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
             if (!state.isCorrect) {
-                // Если ошибка - добавляем ID в глобальный список (если нет)
                 if (!globalErrors.includes(q.id)) {
                     globalErrors.push(q.id);
                 }
             } else {
-                // (Опционально) Если ответил верно в режиме работы над ошибками, можно удалять из списка?
-                // Пока оставим простую логику: если ответил верно СЕЙЧАС, удаляем из списка ошибок, чтобы не висело вечно.
                 if (currentMode === 'mistakes') {
-                     globalErrors = globalErrors.filter(id => id !== q.id);
+                     globalErrors = globalErrors.filter(function(id) { return id !== q.id; });
                 }
             }
             localStorage.setItem(KEY_ERRORS, JSON.stringify(globalErrors));
-            // ======================
 
             if (currentMode === 'main') saveMainProgress();
-            
-            // Перерисовка вопроса в режим "Результат" (показываем правильные)
             renderQuestion(false);
         }
 
@@ -1206,9 +1181,8 @@
             }
         }
 
-        // --- СОХРАНЕНИЕ ---
         function saveMainProgress() {
-            const progress = {
+            var progress = {
                 index: currentIndex,
                 questions: activeQuestions,
                 answers: userAnswers
@@ -1216,33 +1190,30 @@
             localStorage.setItem(KEY_MAIN, JSON.stringify(progress));
         }
 
-        // --- ФИНИШ ---
         function finishQuiz() {
-            let correctCount = 0;
-            activeQuestions.forEach(q => {
+            var correctCount = 0;
+            activeQuestions.forEach(function(q) {
                 if(userAnswers[q.id] && userAnswers[q.id].isCorrect) { correctCount++; }
             });
 
-            const total = activeQuestions.length;
-            const percent = Math.round((correctCount / total) * 100);
+            var total = activeQuestions.length;
+            var percent = Math.round((correctCount / total) * 100);
 
-            document.getElementById('final-score').textContent = `${percent}%`;
+            document.getElementById('final-score').textContent = percent + "%";
             document.getElementById('correct-val').textContent = correctCount;
             document.getElementById('error-val').textContent = total - correctCount;
 
-            const title = document.getElementById('result-title');
+            var title = document.getElementById('result-title');
             if (percent === 100) title.textContent = "Идеально!";
             else if (percent >= 80) title.textContent = "Отлично!";
             else if (percent >= 50) title.textContent = "Неплохо!";
             else title.textContent = "Стоит повторить";
 
-            // Если основной режим и закончили - чистим сохранение
             if (currentMode === 'main') {
                 localStorage.removeItem(KEY_MAIN);
             }
             
-            // Проверяем есть ли глобальные ошибки для кнопки
-            const globalErrors = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+            var globalErrors = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
             if (globalErrors.length > 0) {
                 mistakesBtnEnd.style.display = 'flex';
             } else {
@@ -1253,20 +1224,21 @@
         }
 
         function switchScreen(screenName) {
-            Object.values(screens).forEach(s => s.classList.remove('active'));
+            Object.values(screens).forEach(function(s) { s.classList.remove('active'); });
             screens[screenName].classList.add('active');
             quizFooter.style.display = (screenName === 'quiz') ? 'block' : 'none';
         }
 
         function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
             }
         }
         
-        // Клавиатура для десктопа
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', function(e) {
             if (screens.quiz.classList.contains('active')) {
                 if (e.key === 'ArrowRight') nextBtn.click();
                 if (e.key === 'ArrowLeft') prevBtn.click();
