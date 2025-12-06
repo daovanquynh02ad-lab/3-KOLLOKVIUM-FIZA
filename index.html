@@ -44,6 +44,11 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
+        /* ВАЖНО: Отключаем зум и задержку на уровне CSS для интерактивных элементов */
+        button, .option, input, a {
+            touch-action: manipulation;
+        }
+        
         html { height: 100%; overscroll-behavior: none; }
 
         body {
@@ -55,7 +60,6 @@
             overflow: hidden; 
             display: flex;
             flex-direction: column;
-            touch-action: pan-x pan-y;
         }
 
         .main-scroll-area {
@@ -150,7 +154,6 @@
             cursor: pointer;
             padding: 10px;
             font-size: 0.9rem;
-            touch-action: manipulation;
         }
 
         .start-controls {
@@ -171,15 +174,11 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: all 0.2s;
-            touch-action: manipulation;
+            transition: all 0.1s; /* Быстрая анимация */
             user-select: none;
         }
-        .menu-btn:hover {
-            border-color: var(--accent);
-            background: var(--card-bg);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
+        .menu-btn:active {
+            transform: scale(0.98);
         }
         .menu-btn.primary {
             background: var(--accent);
@@ -187,29 +186,19 @@
             border-color: var(--accent);
             font-weight: 700;
         }
-        .menu-btn.primary:hover {
-            background-color: var(--accent);
-            border-color: var(--accent);
-        }
         .menu-btn.danger {
             background: var(--error-light);
             color: var(--error);
             border-color: var(--error);
             font-weight: 700;
         }
-         .menu-btn.danger:hover {
-            background: var(--error);
-            color: white;
-        }
         .menu-btn i {
             width: 20px;
             text-align: center;
             color: var(--text-secondary);
         }
-        .menu-btn:hover i { color: var(--accent); }
         .menu-btn.primary i { color: white; }
         .menu-btn.danger i { color: var(--error); }
-        .menu-btn.danger:hover i { color: white; }
 
         .top-settings {
             display: flex;
@@ -233,14 +222,9 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            touch-action: manipulation;
             transition: all 0.2s;
         }
         .icon-btn i { font-size: 1.2rem; }
-        .icon-btn:hover {
-            color: var(--text-primary);
-            border-color: var(--text-primary);
-        }
         
         .progress-pill {
             background: var(--card-bg);
@@ -280,10 +264,11 @@
         .options-list { display: flex; flex-direction: column; gap: 12px; }
         .option {
             background: var(--bg); border: 2px solid var(--bg); padding: 16px; border-radius: 12px; cursor: pointer;
-            font-size: 1rem; font-weight: 500; line-height: 1.4; transition: all 0.2s; display: flex; align-items: center;
-            gap: 15px; touch-action: manipulation;
+            font-size: 1rem; font-weight: 500; line-height: 1.4; transition: border-color 0.1s, background-color 0.1s; 
+            display: flex; align-items: center; gap: 15px; 
+            /* Критично для быстрого тапа */
+            user-select: none;
         }
-        .option:hover:not(.disabled) { border-color: var(--accent); }
         
         .option-marker {
             width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border);
@@ -317,8 +302,6 @@
             border-top: 1px solid var(--border);
             z-index: 100;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-            /* Жесткое отключение зума на контейнере */
-            touch-action: manipulation;
         }
         [data-theme="dark"] .quiz-footer { background: var(--card-bg); }
 
@@ -329,9 +312,7 @@
 
         .controls { display: grid; grid-template-columns: 50px 1fr 50px 50px; gap: 10px; }
         
-        /* Стили кнопок с защитой от зума */
         .nav-btn, .action-btn {
-            touch-action: manipulation; 
             user-select: none;
             -webkit-user-select: none;
         }
@@ -341,12 +322,13 @@
             display: flex; align-items: center; justify-content: center; background: var(--card-bg); color: var(--text-primary);
             box-shadow: var(--shadow); 
         }
-        .nav-btn:hover:not(:disabled) { background: var(--bg); border-color: var(--accent); }
+        .nav-btn:active:not(:disabled) { transform: scale(0.95); }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
         
         .action-btn {
             height: 50px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 1rem; color: white;
             background: var(--accent); box-shadow: var(--shadow); 
+            transition: background-color 0.1s;
         }
         .action-btn:disabled { background: var(--text-secondary); box-shadow: none; opacity: 0.5; }
         .action-btn.correct { background: var(--success); }
@@ -393,11 +375,11 @@
             <div class="start-controls">
                 <div id="resume-block" style="display:none; width: 100%;">
                     <button class="menu-btn primary" onclick="startQuiz('resume')">
-                        <i class="fas fa-play"></i> &nbsp; Продолжить
+                        <i class="fas fa-play"></i> &nbsp; Продолжить (Основной)
                     </button>
                 </div>
                 <button class="menu-btn danger" id="mistakes-btn-start" style="display:none;" onclick="startQuiz('mistakes')">
-                    <i class="fas fa-bug"></i> &nbsp; Работа над ошибками
+                    <i class="fas fa-bug"></i> &nbsp; Работа над ошибками (<span id="mistakes-count">0</span>)
                 </button>
                 <button class="menu-btn" onclick="startQuiz('new')">
                     <i class="fas fa-redo"></i> &nbsp; Начать заново (по порядку)
@@ -412,9 +394,6 @@
             <div class="top-settings" style="margin-bottom: 20px;">
                 <div class="progress-pill" id="progress-pill">1 / 50</div>
                 <div class="top-controls-group">
-                    <a href="https://t.me/stewonly" target="_blank" class="icon-btn" aria-label="Telegram">
-                        <i class="fab fa-telegram-plane"></i>
-                    </a>
                     <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn-quiz">
                         <i class="fas fa-moon"></i>
                     </button>
@@ -467,7 +446,7 @@
     </div>
     
     <script>
-        // --- БАЗА ДАННЫХ ---
+        // --- БАЗА ДАННЫХ ВОПРОСОВ ---
         const D={t1:{n:"1. Анатомия ЖКТ",q:[
         {i:902,q:"Укажите особенности, характерные для полого органа:",o:["имеет строму и паренхиму","имеет паренхиму и дольчатое строение","имеет внутреннюю полость и 3-х слойную стенку","имеет строму и внутреннюю полость"],c:[2]},
         {i:903,q:"Укажите особенности, характерные для паренхиматозного органа:",o:["имеет внутреннюю полость и 3-х слойную стенку","имеет паренхиму и дольчатое строение","имеет строму и паренхиму","имеет строму и внутреннюю полость"],c:[1,2]},
@@ -843,6 +822,7 @@
         {i:1456,q:"Бурый жир:",o:["гликоген","несократительный термогенез","сократительный","АТФ"],c:[1]}
         ]}};
 
+        // --- ОБРАБОТКА ДАННЫХ ---
         const topicData = {};
         const allQuestionsMap = {}; 
         for (const key in D) {
@@ -866,7 +846,10 @@
         let currentIndex = 0;
         let userAnswers = {}; 
         let currentMode = 'default';
-        const storageKey = 'colloq_physio_3'; 
+        
+        // КЛЮЧИ LOCALSTORAGE (РАЗНЫЕ для основного режима и ошибок)
+        const KEY_MAIN = 'physio_v3_progress';
+        const KEY_ERRORS = 'physio_v3_errors'; // Массив ID ошибок
 
         // --- DOM ЭЛЕМЕНТЫ ---
         const screens = {
@@ -875,6 +858,10 @@
             result: document.getElementById('result-screen')
         };
         const resumeBtn = document.getElementById('resume-block');
+        const mistakesBtnStart = document.getElementById('mistakes-btn-start');
+        const mistakesBtnEnd = document.getElementById('mistakes-btn-end');
+        const mistakesCountEl = document.getElementById('mistakes-count');
+        
         const quizFooter = document.getElementById('quiz-footer');
         const cardContainer = document.getElementById('question-card');
         const qIdEl = document.getElementById('q-id-display');
@@ -884,8 +871,6 @@
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const themeToggleBtns = document.querySelectorAll('button.theme-toggle'); 
-        const mistakesBtnEnd = document.getElementById('mistakes-btn-end');
-        const mistakesBtnStart = document.getElementById('mistakes-btn-start');
         const progressPill = document.getElementById('progress-pill');
         const topicListEl = document.getElementById('topic-list');
 
@@ -895,27 +880,7 @@
             populateTopics();
             checkStorageForResume();
             themeToggleBtns.forEach(btn => btn.onclick = toggleTheme);
-            
-            // Скрипт блокировки двойного тапа на кнопках футера
-            const footerButtons = document.querySelectorAll('.quiz-footer button');
-            footerButtons.forEach(btn => {
-                preventDoubleTap(btn);
-            });
         });
-        
-        // Функция предотвращения двойного тапа
-        function preventDoubleTap(element) {
-            let lastTap = 0;
-            element.addEventListener('touchend', function(e) {
-                const currentTime = new Date().getTime();
-                const tapLength = currentTime - lastTap;
-                if (tapLength < 300 && tapLength > 0) { // 300ms задержка
-                    e.preventDefault();
-                    return false;
-                }
-                lastTap = currentTime;
-            });
-        }
         
         function populateTopics() {
             for (const key in topicData) {
@@ -932,28 +897,21 @@
         }
         
         function checkStorageForResume() {
-            const savedData = JSON.parse(localStorage.getItem(storageKey));
-            
-            // Логика кнопки "Продолжить" (Resume)
-            // Показываем ТОЛЬКО если есть сохраненные вопросы И (пользователь ушел дальше 1 вопроса ИЛИ ответил на что-то)
-            if (savedData && savedData.rawQuestions && savedData.rawQuestions.length > 0) {
-                 const hasProgress = savedData.currentIndex > 0 || (savedData.answers && Object.keys(savedData.answers).some(k => savedData.answers[k].isSubmitted));
-                 
-                 if (hasProgress) {
-                    resumeBtn.style.display = 'block';
-                 } else {
-                    resumeBtn.style.display = 'none';
-                 }
+            // 1. Проверка основного прогресса
+            const savedMain = JSON.parse(localStorage.getItem(KEY_MAIN));
+            if (savedMain && savedMain.questions && savedMain.questions.length > 0) {
+                 resumeBtn.style.display = 'block';
             } else {
                 resumeBtn.style.display = 'none';
             }
             
-            // Логика кнопки "Работа над ошибками"
-            if (savedData && savedData.answers) {
-                const hasMistakes = Object.values(savedData.answers).some(a => a && a.isSubmitted && !a.isCorrect);
-                if (hasMistakes) {
-                    mistakesBtnStart.style.display = 'flex';
-                }
+            // 2. Проверка ошибок
+            const errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+            if (errorIds.length > 0) {
+                mistakesBtnStart.style.display = 'flex';
+                mistakesCountEl.textContent = errorIds.length;
+            } else {
+                mistakesBtnStart.style.display = 'none';
             }
         }
 
@@ -993,106 +951,108 @@
         }
         
         function goHome() {
-            saveProgress(); 
+            // Если мы в основном режиме - сохраняем позицию
+            if (currentMode === 'main') {
+                saveMainProgress(); 
+            }
             switchScreen('start');
             checkStorageForResume(); 
         }
 
-        // --- ЛОГИКА СТАРТА ТЕСТА ---
+        // --- ЛОГИКА ЗАПУСКА ТЕСТА ---
+        
         function startQuiz(mode) {
             currentMode = mode;
+            userAnswers = {};
+            activeQuestions = [];
+            currentIndex = 0;
             
             if (mode === 'resume') {
-                if (!loadProgress()) {
-                    alert("Сохраненные данные не найдены. Начинаем заново.");
-                    startQuiz('new');
+                // ЗАГРУЗКА ОСНОВНОГО ПРОГРЕССА
+                const savedData = JSON.parse(localStorage.getItem(KEY_MAIN));
+                if (savedData) {
+                    currentMode = 'main'; // Гарантируем режим
+                    activeQuestions = savedData.questions;
+                    currentIndex = savedData.index;
+                    userAnswers = savedData.answers || {};
+                } else {
+                    alert("Нет сохраненной игры");
                     return;
                 }
-            } else {
-                activeQuestions = [];
-                currentIndex = 0;
-
-                if (mode === 'mistakes') {
-                    const savedData = JSON.parse(localStorage.getItem(storageKey));
-                    let mistakeIDs = [];
-                    
-                    if (savedData && savedData.answers) {
-                         const oldAnswers = savedData.answers; 
-                         for (const id in oldAnswers) {
-                             if (oldAnswers[id].isSubmitted && !oldAnswers[id].isCorrect) {
-                                 mistakeIDs.push(id);
-                             }
-                         }
-                    }
-
-                    if (mistakeIDs.length === 0) {
-                         alert("Нет сохраненных ошибок для работы!");
-                         return;
-                    }
-                    
-                    mistakeIDs.forEach(id => {
-                        if (allQuestionsMap[id]) {
-                            activeQuestions.push(allQuestionsMap[id]);
-                        }
-                    });
-                    
-                    userAnswers = {};
-                    activeQuestions.forEach(q => {
-                        userAnswers[q.id] = { selected: new Set(), isSubmitted: false, isCorrect: false };
-                    });
-                    
-                    localStorage.removeItem(storageKey);
-
-                } else { // 'new' or 'shuffle'
-                    const selectedKeys = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.dataset.topicKey);
-                    if (selectedKeys.length === 0) { alert("Выберите хотя бы одну тему!"); return; }
-
-                    selectedKeys.forEach(key => {
-                        topicData[key].questions.forEach(q => {
-                            activeQuestions.push({...JSON.parse(JSON.stringify(q)), topic: topicData[key].name });
-                        });
-                    });
-                    
-                    if (activeQuestions.length === 0) { alert("В выбранных темах нет вопросов."); return; }
-
-                    if (mode === 'shuffle') {
-                        shuffleArray(activeQuestions);
-                        activeQuestions.forEach(q => {
-                            const correctOriginalTexts = q.correct.map(idx => q.opts[idx]);
-                            shuffleArray(q.opts);
-                            q.correct = correctOriginalTexts.map(text => q.opts.findIndex(opt => opt === text));
-                        });
-                    }
-                    userAnswers = {};
-                    localStorage.removeItem(storageKey);
+            } 
+            else if (mode === 'mistakes') {
+                // ЗАГРУЗКА ОШИБОК
+                const errorIds = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+                if (errorIds.length === 0) {
+                    alert("Ошибок пока нет!");
+                    return;
                 }
+                // Собираем вопросы по ID
+                errorIds.forEach(id => {
+                    if (allQuestionsMap[id]) activeQuestions.push(allQuestionsMap[id]);
+                });
+                // В этом режиме мы не сохраняем позицию "Продолжить"
+            } 
+            else {
+                // НОВАЯ ИГРА ('new' или 'shuffle')
+                currentMode = 'main'; // Новая игра считается основным режимом
+                const selectedKeys = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.dataset.topicKey);
+                if (selectedKeys.length === 0) { alert("Выберите хотя бы одну тему!"); return; }
+
+                selectedKeys.forEach(key => {
+                    topicData[key].questions.forEach(q => {
+                        // Копируем объект, чтобы не портить оригинал шаффлом ответов
+                        activeQuestions.push({...JSON.parse(JSON.stringify(q)), topic: topicData[key].name });
+                    });
+                });
+                
+                if (activeQuestions.length === 0) { alert("Нет вопросов."); return; }
+
+                if (mode === 'shuffle') {
+                    shuffleArray(activeQuestions);
+                    activeQuestions.forEach(q => {
+                        const correctOriginalTexts = q.correct.map(idx => q.opts[idx]);
+                        shuffleArray(q.opts);
+                        q.correct = correctOriginalTexts.map(text => q.opts.findIndex(opt => opt === text));
+                    });
+                }
+                // Сбрасываем старый прогресс основной игры
+                localStorage.removeItem(KEY_MAIN);
             }
 
             switchScreen('quiz');
             renderQuestion(true);
         }
         
-        // --- ЛОГИКА РЕНДЕРА ВОПРОСА ---
+        // --- РЕНДЕР ВОПРОСА ---
         function renderQuestion(isFirstLoad = false) {
             const q = activeQuestions[currentIndex];
             if (!q) return;
 
+            // Инициализация ответа пользователя, если нет
             if (!userAnswers[q.id]) {
-                userAnswers[q.id] = { selected: new Set(), isSubmitted: false, isCorrect: false };
+                userAnswers[q.id] = { selected: [], isSubmitted: false, isCorrect: false };
             }
             const state = userAnswers[q.id];
 
-            progressPill.textContent = `${currentIndex + 1} / ${activeQuestions.length}`;
+            // UI
+            const modeText = (currentMode === 'mistakes') ? 'Работа над ошибками' : 'Тест';
+            progressPill.textContent = `${modeText}: ${currentIndex + 1} / ${activeQuestions.length}`;
             qIdEl.textContent = q.topic; 
             qTextEl.textContent = q.q;
 
+            // Анимация
             cardContainer.style.animation = 'none';
             if (!isFirstLoad) {
                 void cardContainer.offsetWidth; 
-                cardContainer.style.animation = `fadeIn 0.3s ease-out`;
+                cardContainer.style.animation = `fadeIn 0.2s ease-out`;
             }
 
+            // Рендер вариантов
             optionsList.innerHTML = '';
+            // Множество выбранных индексов для быстрой проверки
+            const selectedSet = new Set(state.selected);
+
             q.opts.forEach((optText, idx) => {
                 const div = document.createElement('div');
                 div.className = 'option';
@@ -1101,82 +1061,135 @@
 
                 if (state.isSubmitted) {
                     div.classList.add('disabled');
-                    if (q.correct.includes(idx)) { div.classList.add('correct'); marker.innerHTML = '<i class="fas fa-check"></i>'; }
-                    else if (state.selected.has(idx)) { div.classList.add('incorrect'); marker.innerHTML = '<i class="fas fa-times"></i>'; }
-                    if (q.correct.includes(idx) && !state.selected.has(idx)) { div.classList.add('missed'); }
+                    // Логика раскраски
+                    const isCorrectOption = q.correct.includes(idx);
+                    const isSelected = selectedSet.has(idx);
+
+                    if (isCorrectOption) { 
+                        div.classList.add('correct'); 
+                        marker.innerHTML = '<i class="fas fa-check"></i>'; 
+                    }
+                    else if (isSelected) { 
+                        div.classList.add('incorrect'); 
+                        marker.innerHTML = '<i class="fas fa-times"></i>'; 
+                    }
+                    
+                    if (isCorrectOption && !isSelected) { div.classList.add('missed'); }
                 } else {
-                    if (state.selected.has(idx)) { div.classList.add('selected'); marker.innerHTML = '<i class="fas fa-check"></i>'; }
+                    if (selectedSet.has(idx)) { 
+                        div.classList.add('selected'); 
+                        marker.innerHTML = '<i class="fas fa-check"></i>'; 
+                    }
+                    // Обработчик клика
                     div.onclick = () => toggleOption(q.id, idx);
                 }
                 optionsList.appendChild(div);
             });
             
             updateFooter(state);
-            saveProgress();
+            // Если основной режим - сохраняем, где мы сейчас
+            if (currentMode === 'main') saveMainProgress();
         }
 
         function toggleOption(qId, idx) {
             const state = userAnswers[qId];
             if (state.isSubmitted) return;
-            if (state.selected.has(idx)) state.selected.delete(idx);
-            else state.selected.add(idx);
             
+            const selectedSet = new Set(state.selected);
+            if (selectedSet.has(idx)) selectedSet.delete(idx);
+            else selectedSet.add(idx);
+            
+            // Сохраняем обратно в массив
+            state.selected = Array.from(selectedSet);
+            
+            // Обновляем визуально только этот элемент (для скорости)
             const options = document.querySelectorAll('.option');
-            options.forEach((opt, i) => { 
-                if (i === idx) {
-                    opt.classList.toggle('selected');
-                    opt.querySelector('.option-marker').innerHTML = state.selected.has(idx) ? '<i class="fas fa-check"></i>' : '';
+            const opt = options[idx];
+            if (opt) {
+                if (selectedSet.has(idx)) {
+                    opt.classList.add('selected');
+                    opt.querySelector('.option-marker').innerHTML = '<i class="fas fa-check"></i>';
+                } else {
+                    opt.classList.remove('selected');
+                    opt.querySelector('.option-marker').innerHTML = '';
                 }
-            });
+            }
             updateFooter(state);
         }
 
-        // --- ЛОГИКА ФУТЕРА/КНОПОК ---
+        // --- ЛОГИКА ФУТЕРА И ПЕРЕХОДОВ ---
         function updateFooter(state) {
             prevBtn.disabled = (currentIndex === 0);
             nextBtn.disabled = (currentIndex === activeQuestions.length - 1);
             
+            // Сброс классов кнопки
+            mainBtn.className = 'action-btn';
+            
             if (state.isSubmitted) {
-                mainBtn.textContent = "Далее";
+                // Если уже ответили -> кнопка ведет "Далее"
+                if (currentIndex === activeQuestions.length - 1) {
+                    mainBtn.textContent = "Завершить";
+                } else {
+                    mainBtn.textContent = "Далее";
+                }
                 mainBtn.disabled = false;
-                mainBtn.className = 'action-btn';
+                
+                // Красим кнопку в зависимости от результата
                 if(state.isCorrect) mainBtn.classList.add('correct');
                 else mainBtn.classList.add('incorrect');
                 
-                if (currentIndex === activeQuestions.length - 1) {
-                    mainBtn.textContent = "Завершить";
-                }
             } else {
+                // Если еще не ответили -> кнопка "Ответить"
                 mainBtn.textContent = "Ответить";
-                mainBtn.disabled = (state.selected.size === 0);
-                mainBtn.className = 'action-btn';
+                mainBtn.disabled = (state.selected.length === 0);
             }
         }
         
         function handleMainClick() {
-            const state = userAnswers[activeQuestions[currentIndex].id];
-            if (state.isSubmitted) {
+            const q = activeQuestions[currentIndex];
+            const state = userAnswers[q.id];
+            
+            if (!state.isSubmitted) {
+                // 1. ПРОВЕРКА ОТВЕТА (Мгновенно)
+                submitAnswer(q, state);
+            } else {
+                // 2. ПЕРЕХОД ДАЛЬШЕ
                 if (currentIndex < activeQuestions.length - 1) {
                     nextQ();
                 } else {
                     finishQuiz();
                 }
-            } else {
-                checkAnswer();
             }
         }
 
-        function checkAnswer() {
-            const q = activeQuestions[currentIndex];
-            const state = userAnswers[q.id];
-            if (state.isSubmitted) return;
+        function submitAnswer(q, state) {
             state.isSubmitted = true;
             
-            const userArr = Array.from(state.selected).sort();
+            // Сравнение массивов
+            const userArr = [...state.selected].sort();
             const correctArr = [...q.correct].sort();
-            state.isCorrect = JSON.stringify(userArr) === JSON.stringify(correctArr);
+            state.isCorrect = (JSON.stringify(userArr) === JSON.stringify(correctArr));
             
-            saveProgress();
+            // === ЛОГИКА ОШИБОК ===
+            let globalErrors = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+            if (!state.isCorrect) {
+                // Если ошибка - добавляем ID в глобальный список (если нет)
+                if (!globalErrors.includes(q.id)) {
+                    globalErrors.push(q.id);
+                }
+            } else {
+                // (Опционально) Если ответил верно в режиме работы над ошибками, можно удалять из списка?
+                // Пока оставим простую логику: если ответил верно СЕЙЧАС, удаляем из списка ошибок, чтобы не висело вечно.
+                if (currentMode === 'mistakes') {
+                     globalErrors = globalErrors.filter(id => id !== q.id);
+                }
+            }
+            localStorage.setItem(KEY_ERRORS, JSON.stringify(globalErrors));
+            // ======================
+
+            if (currentMode === 'main') saveMainProgress();
+            
+            // Перерисовка вопроса в режим "Результат" (показываем правильные)
             renderQuestion(false);
         }
 
@@ -1193,7 +1206,17 @@
             }
         }
 
-        // --- РЕЗУЛЬТАТЫ И СОХРАНЕНИЕ ---
+        // --- СОХРАНЕНИЕ ---
+        function saveMainProgress() {
+            const progress = {
+                index: currentIndex,
+                questions: activeQuestions,
+                answers: userAnswers
+            };
+            localStorage.setItem(KEY_MAIN, JSON.stringify(progress));
+        }
+
+        // --- ФИНИШ ---
         function finishQuiz() {
             let correctCount = 0;
             activeQuestions.forEach(q => {
@@ -1213,49 +1236,22 @@
             else if (percent >= 50) title.textContent = "Неплохо!";
             else title.textContent = "Стоит повторить";
 
-            if (correctCount < total) {
+            // Если основной режим и закончили - чистим сохранение
+            if (currentMode === 'main') {
+                localStorage.removeItem(KEY_MAIN);
+            }
+            
+            // Проверяем есть ли глобальные ошибки для кнопки
+            const globalErrors = JSON.parse(localStorage.getItem(KEY_ERRORS)) || [];
+            if (globalErrors.length > 0) {
                 mistakesBtnEnd.style.display = 'flex';
-                saveProgress(); 
             } else {
                 mistakesBtnEnd.style.display = 'none';
-                localStorage.removeItem(storageKey); 
             }
 
             switchScreen('result');
         }
 
-        function saveProgress() {
-            const serializableAnswers = {};
-            
-            for (const id in userAnswers) {
-                serializableAnswers[id] = { ...userAnswers[id], selected: Array.from(userAnswers[id].selected) };
-            }
-
-            const progress = {
-                currentMode: currentMode,
-                currentIndex: currentIndex,
-                rawQuestions: activeQuestions, 
-                answers: serializableAnswers
-            };
-            localStorage.setItem(storageKey, JSON.stringify(progress));
-        }
-
-        function loadProgress() {
-            const savedData = JSON.parse(localStorage.getItem(storageKey));
-            if (!savedData || !savedData.rawQuestions || savedData.rawQuestions.length === 0) return false;
-            
-            currentMode = savedData.currentMode;
-            currentIndex = savedData.currentIndex;
-            activeQuestions = savedData.rawQuestions; 
-            
-            userAnswers = {};
-            for (const id in savedData.answers) {
-                const ans = savedData.answers[id];
-                userAnswers[id] = { ...ans, selected: new Set(ans.selected) };
-            }
-            return true;
-        }
-        
         function switchScreen(screenName) {
             Object.values(screens).forEach(s => s.classList.remove('active'));
             screens[screenName].classList.add('active');
@@ -1269,6 +1265,7 @@
             }
         }
         
+        // Клавиатура для десктопа
         document.addEventListener('keydown', (e) => {
             if (screens.quiz.classList.contains('active')) {
                 if (e.key === 'ArrowRight') nextBtn.click();
