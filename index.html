@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Физиология: Пищеварение и Терморегуляция</title>
+    <title>3 КОЛЛОКВИУМ ФИЗИОЛОГИЯ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +49,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             touch-action: manipulation;
+            overscroll-behavior: none; /* Предотвращает оттягивание страницы при свайпе */
         }
 
         .container {
@@ -81,6 +82,7 @@
             color: var(--text-primary);
             margin-bottom: 10px;
             line-height: 1.2;
+            text-transform: uppercase;
         }
         .start-header p {
             font-size: 1.1rem;
@@ -178,6 +180,17 @@
             background-color: var(--accent);
             border-color: var(--accent);
         }
+        .menu-btn.danger {
+            background: var(--error-light);
+            color: var(--error);
+            border-color: var(--error);
+            font-weight: 700;
+        }
+         .menu-btn.danger:hover {
+            background: var(--error);
+            color: white;
+        }
+        
         .menu-btn i {
             width: 20px;
             text-align: center;
@@ -185,6 +198,8 @@
         }
         .menu-btn:hover i { color: var(--accent); }
         .menu-btn.primary i { color: white; }
+        .menu-btn.danger i { color: var(--error); }
+        .menu-btn.danger:hover i { color: white; }
 
         .top-settings {
             display: flex;
@@ -235,6 +250,7 @@
             width: 100%;
             border: 1px solid var(--border);
             margin-top: 20px;
+            position: relative;
         }
         .q-id {
             font-size: 1rem;
@@ -284,6 +300,7 @@
             position: fixed; bottom: 0; left: 0; right: 0; padding: 20px;
             background: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--card-bg) 30%);
             border-top: 1px solid var(--border);
+            z-index: 100;
         }
         [data-theme="dark"] .quiz-footer { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--card-bg) 30%); }
 
@@ -314,6 +331,11 @@
         .stat-val.error { color: var(--error); }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Свайп подсказка */
+        .swipe-hint {
+            text-align: center; font-size: 0.8rem; color: var(--text-secondary); opacity: 0.5; margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -333,7 +355,7 @@
                 </div>
             </div>
             <div class="start-header">
-                <h1>Физиология: Пищеварение и Терморегуляция</h1>
+                <h1>3 КОЛЛОКВИУМ ФИЗИОЛОГИЯ</h1>
                 <p>Тренажер по вопросам 902-1456.</p>
             </div>
             
@@ -347,17 +369,17 @@
             <div class="start-controls">
                 <div id="resume-block" style="display:none; width: 100%;">
                     <button class="menu-btn primary" onclick="startQuiz('resume')">
-                        <i class="fas fa-play"></i> &nbsp; Продолжить
+                        <i class="fas fa-play"></i> &nbsp; Продолжить с места остановки
                     </button>
                 </div>
+                <button class="menu-btn danger" id="mistakes-btn-start" style="display:none;" onclick="startQuiz('mistakes')">
+                    <i class="fas fa-bug"></i> &nbsp; Работа над ошибками
+                </button>
                 <button class="menu-btn" onclick="startQuiz('new')">
-                    <i class="fas fa-redo"></i> &nbsp; Начать (по порядку)
+                    <i class="fas fa-redo"></i> &nbsp; Начать заново (по порядку)
                 </button>
                 <button class="menu-btn" onclick="startQuiz('shuffle')">
                     <i class="fas fa-random"></i> &nbsp; Случайный порядок
-                </button>
-                <button class="menu-btn primary" id="mistakes-btn-start" style="display:none;" onclick="startQuiz('mistakes')">
-                    <i class="fas fa-bug"></i> &nbsp; Работа над ошибками
                 </button>
             </div>
         </div>
@@ -380,6 +402,7 @@
                 <div class="q-title" id="q-text">Загрузка...</div>
                 <div class="options-list" id="options-list"></div>
             </div>
+            <div class="swipe-hint"><i class="fas fa-arrows-alt-h"></i> Свайп влево/вправо для переключения</div>
         </div>
 
         <div id="result-screen" class="screen">
@@ -398,7 +421,7 @@
                 </div>
             </div>
             <div class="start-controls" style="margin-top: 20px;">
-                 <button class="menu-btn primary" id="mistakes-btn-end" onclick="startQuiz('mistakes')" style="display:none">
+                 <button class="menu-btn danger" id="mistakes-btn-end" onclick="startQuiz('mistakes')" style="display:none">
                     <i class="fas fa-bug"></i> &nbsp; Работа над ошибками
                 </button>
                 <button class="menu-btn" onclick="goHome()">
@@ -420,7 +443,7 @@
     </div>
     
     <script>
-        // --- БАЗА ДАННЫХ ВОПРОСОВ (ФИЗИОЛОГИЯ: ПИЩЕВАРЕНИЕ И ТЕРМОРЕГУЛЯЦИЯ) ---
+        // --- БАЗА ДАННЫХ (СЖАТЫЙ ФОРМАТ) ---
         const D={t1:{n:"1. Анатомия ЖКТ",q:[
         {i:902,q:"Укажите особенности, характерные для полого органа:",o:["имеет строму и паренхиму","имеет паренхиму и дольчатое строение","имеет внутреннюю полость и 3-х слойную стенку","имеет строму и внутреннюю полость"],c:[2]},
         {i:903,q:"Укажите особенности, характерные для паренхиматозного органа:",o:["имеет внутреннюю полость и 3-х слойную стенку","имеет паренхиму и дольчатое строение","имеет строму и паренхиму","имеет строму и внутреннюю полость"],c:[1,2]},
@@ -796,17 +819,22 @@
         {i:1456,q:"Бурый жир:",o:["гликоген","несократительный термогенез","сократительный","АТФ"],c:[1]}
         ]}};
 
-        // Адаптер данных (из сжатого формата в рабочий)
+        // Адаптер данных
         const topicData = {};
+        const allQuestionsMap = {}; // Для быстрого поиска по ID
         for (const key in D) {
             topicData[key] = {
                 name: D[key].n,
-                questions: D[key].q.map(item => ({
-                    id: item.i.toString(),
-                    q: item.q,
-                    opts: item.o,
-                    correct: item.c
-                }))
+                questions: D[key].q.map(item => {
+                    const qObj = {
+                        id: item.i.toString(),
+                        q: item.q,
+                        opts: item.o,
+                        correct: item.c
+                    };
+                    allQuestionsMap[qObj.id] = {...qObj, topic: D[key].n};
+                    return qObj;
+                })
             };
         }
 
@@ -815,7 +843,7 @@
         let currentIndex = 0;
         let userAnswers = {}; 
         let currentMode = 'default';
-        const storageKey = 'physio_quiz_digestion_v1'; // Новый ключ для сохранения
+        const storageKey = 'colloq_physio_3'; 
 
         // --- DOM ЭЛЕМЕНТЫ ---
         const screens = {
@@ -842,17 +870,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
             populateTopics();
-            const savedData = JSON.parse(localStorage.getItem(storageKey));
-            if (savedData && savedData.answers) {
-                const hasMistakes = Object.values(savedData.answers).some(a => a && a.isSubmitted && !a.isCorrect);
-                if (hasMistakes) {
-                    mistakesBtnStart.style.display = 'flex';
-                }
-                if(savedData.rawQuestions && savedData.rawQuestions.length > 0) {
-                     resumeBtn.style.display = 'block';
-                }
-            }
+            checkStorageForResume();
             themeToggleBtns.forEach(btn => btn.onclick = toggleTheme);
+            initSwipe();
         });
         
         function populateTopics() {
@@ -869,6 +889,24 @@
             }
         }
         
+        function checkStorageForResume() {
+            const savedData = JSON.parse(localStorage.getItem(storageKey));
+            
+            // Проверка на наличие незаконченного теста
+            if (savedData && savedData.rawQuestions && savedData.rawQuestions.length > 0) {
+                 // Если тест не закончен (не все отвечены или просто сохранен прогресс)
+                 resumeBtn.style.display = 'block';
+            }
+            
+            // Проверка на наличие ошибок в прошлом сеансе
+            if (savedData && savedData.answers) {
+                const hasMistakes = Object.values(savedData.answers).some(a => a && a.isSubmitted && !a.isCorrect);
+                if (hasMistakes) {
+                    mistakesBtnStart.style.display = 'flex';
+                }
+            }
+        }
+
         function toggleSelectAll(button) {
             const checkboxes = document.querySelectorAll('.topic-checkbox');
             const allSelected = Array.from(checkboxes).every(cb => cb.checked);
@@ -905,7 +943,10 @@
         }
         
         function goHome() {
+            // При выходе в меню сохраняем прогресс, чтобы можно было продолжить
+            saveProgress(); 
             switchScreen('start');
+            checkStorageForResume(); // Обновить кнопки
         }
 
         // --- ЛОГИКА СТАРТА ТЕСТА ---
@@ -923,35 +964,39 @@
                 currentIndex = 0;
 
                 if (mode === 'mistakes') {
+                    // Работа над ошибками: берем данные из Storage
                     const savedData = JSON.parse(localStorage.getItem(storageKey));
-                    let allMistakeIDs = [];
+                    let mistakeIDs = [];
+                    
                     if (savedData && savedData.answers) {
-                         userAnswers = savedData.answers; 
-                         for (const id in userAnswers) {
-                             userAnswers[id].selected = new Set(userAnswers[id].selected); 
-                             if (!userAnswers[id].isCorrect) {
-                                 allMistakeIDs.push(id);
+                         const oldAnswers = savedData.answers; 
+                         for (const id in oldAnswers) {
+                             if (oldAnswers[id].isSubmitted && !oldAnswers[id].isCorrect) {
+                                 mistakeIDs.push(id);
                              }
                          }
                     }
 
-                    if (allMistakeIDs.length === 0) {
+                    if (mistakeIDs.length === 0) {
                          alert("Нет сохраненных ошибок для работы!");
                          return;
                     }
                     
-                    let fullData = [];
-                    for (const key in topicData) {
-                        topicData[key].questions.forEach(q => {
-                            fullData.push({...q, topic: topicData[key].name });
-                        });
-                    }
+                    // Собираем вопросы по ID
+                    mistakeIDs.forEach(id => {
+                        if (allQuestionsMap[id]) {
+                            activeQuestions.push(allQuestionsMap[id]);
+                        }
+                    });
                     
-                    activeQuestions = fullData.filter(q => allMistakeIDs.includes(q.id.toString()));
-                    
+                    // Сбрасываем ответы для нового теста
+                    userAnswers = {};
                     activeQuestions.forEach(q => {
                         userAnswers[q.id] = { selected: new Set(), isSubmitted: false, isCorrect: false };
                     });
+                    
+                    // Удаляем старое сохранение, так как начали новый специфичный тест
+                    localStorage.removeItem(storageKey);
 
                 } else { // 'new' or 'shuffle'
                     const selectedKeys = Array.from(document.querySelectorAll('.topic-checkbox:checked')).map(cb => cb.dataset.topicKey);
@@ -974,6 +1019,7 @@
                         });
                     }
                     userAnswers = {};
+                    // При начале нового теста старый стираем
                     localStorage.removeItem(storageKey);
                 }
             }
@@ -1022,6 +1068,8 @@
             });
             
             updateFooter(state);
+            // Сохраняем прогресс на каждом шаге (чтобы кнопка "Продолжить" работала точно)
+            saveProgress();
         }
 
         function toggleOption(qId, idx) {
@@ -1122,39 +1170,27 @@
             else if (percent >= 50) title.textContent = "Неплохо!";
             else title.textContent = "Стоит повторить";
 
+            // Логика кнопки "Работа над ошибками"
             if (correctCount < total) {
                 mistakesBtnEnd.style.display = 'flex';
-                mistakesBtnStart.style.display = 'flex';
+                // Мы сохраняем текущее состояние, чтобы на стартовом экране кнопка тоже появилась
+                saveProgress(); 
             } else {
                 mistakesBtnEnd.style.display = 'none';
-                mistakesBtnStart.style.display = 'none';
+                // Если все верно, можно очистить сохранение, так как продолжать нечего
+                // Но лучше оставить, чтобы статистика не пропала, просто уберем кнопку "Продолжить"
+                localStorage.removeItem(storageKey); 
             }
+
             switchScreen('result');
-            
-            saveProgress(); 
-            
-            if (correctCount === total) {
-                localStorage.removeItem(storageKey);
-                mistakesBtnStart.style.display = 'none';
-                resumeBtn.style.display = 'none';
-            }
         }
 
         function saveProgress() {
+            // Для сохранения Set нужно преобразовать в Array
             const serializableAnswers = {};
-            let allAnswers = userAnswers;
-
-            const saved = JSON.parse(localStorage.getItem(storageKey));
-            if (saved && saved.answers) {
-                const oldAnswers = saved.answers;
-                 for (const id in oldAnswers) {
-                     if (oldAnswers[id]) { oldAnswers[id].selected = new Set(oldAnswers[id].selected); }
-                 }
-                allAnswers = {...oldAnswers, ...userAnswers};
-            }
             
-            for (const id in allAnswers) {
-                serializableAnswers[id] = { ...allAnswers[id], selected: Array.from(allAnswers[id].selected) };
+            for (const id in userAnswers) {
+                serializableAnswers[id] = { ...userAnswers[id], selected: Array.from(userAnswers[id].selected) };
             }
 
             const progress = {
@@ -1168,14 +1204,17 @@
 
         function loadProgress() {
             const savedData = JSON.parse(localStorage.getItem(storageKey));
-            if (!savedData) return false;
+            if (!savedData || !savedData.rawQuestions || savedData.rawQuestions.length === 0) return false;
             
             currentMode = savedData.currentMode;
             currentIndex = savedData.currentIndex;
             activeQuestions = savedData.rawQuestions; 
-            userAnswers = savedData.answers;
-            for (const id in userAnswers) {
-                if (userAnswers[id]) { userAnswers[id].selected = new Set(userAnswers[id].selected); }
+            
+            // Восстанавливаем Set из Array
+            userAnswers = {};
+            for (const id in savedData.answers) {
+                const ans = savedData.answers[id];
+                userAnswers[id] = { ...ans, selected: new Set(ans.selected) };
             }
             return true;
         }
@@ -1193,6 +1232,39 @@
             }
         }
         
+        // --- SWIPE LOGIC (ДЛЯ ТЕЛЕФОНОВ) ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        function initSwipe() {
+            const card = document.getElementById('quiz-screen');
+            
+            card.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, {passive: true});
+
+            card.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, {passive: true});
+        }
+        
+        function handleSwipe() {
+            const threshold = 50; // Мин. расстояние свайпа
+            if (touchEndX < touchStartX - threshold) {
+                // Свайп влево (Следующий)
+                // Если вопрос уже отвечен, переходим
+                if (userAnswers[activeQuestions[currentIndex].id].isSubmitted) {
+                    if (currentIndex < activeQuestions.length - 1) nextQ();
+                }
+            }
+            if (touchEndX > touchStartX + threshold) {
+                // Свайп вправо (Предыдущий)
+                prevQ();
+            }
+        }
+        
+        // --- KEYBOARD ---
         document.addEventListener('keydown', (e) => {
             if (screens.quiz.classList.contains('active')) {
                 if (e.key === 'ArrowRight') nextBtn.click();
